@@ -14,4 +14,6 @@ export interface BuildOptions {
   customCss?: string;
   /** Title used for the `<title>` tag of the generated HTML document. */
   title: string;
+  /** Directory used to resolve relative image paths, for embedding as data URIs. */
+  baseDir?: string;
 }
