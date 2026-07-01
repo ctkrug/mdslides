@@ -13,7 +13,12 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function createRenderer(baseDir: string): Marked {
+interface SlideRenderer {
+  render(markdown: string, incremental: boolean): string;
+}
+
+function createRenderer(baseDir: string): SlideRenderer {
+  let incremental = false;
   const instance = new Marked();
   instance.use({
     renderer: {
@@ -27,13 +32,22 @@ function createRenderer(baseDir: string): Marked {
         const { html, language } = highlightCode(code, lang);
         return `<pre><code class="hljs language-${language}">${html}</code></pre>`;
       },
+      listitem(text: string) {
+        const cls = incremental ? ' class="fragment"' : '';
+        return `<li${cls}>${text}</li>\n`;
+      },
     },
   });
-  return instance;
+  return {
+    render(markdown: string, isIncremental: boolean): string {
+      incremental = isIncremental;
+      return instance.parse(markdown, { async: false }) as string;
+    },
+  };
 }
 
-function renderSlide(slide: Slide, index: number, marked: Marked): string {
-  const html = marked.parse(slide.markdown, { async: false }) as string;
+function renderSlide(slide: Slide, index: number, marked: SlideRenderer): string {
+  const html = marked.render(slide.markdown, slide.incremental);
   const notesAttr = escapeHtml(slide.notes.join('\n'));
   const activeClass = index === 0 ? ' active' : '';
   return `  <section class="slide${activeClass}" data-notes="${notesAttr}">\n${html}\n  </section>`;
@@ -88,6 +102,13 @@ export function renderDeck(slides: Slide[], options: BuildOptions): string {
   width: 0%;
   background: currentColor;
   transition: width 0.15s ease-out;
+}
+.fragment {
+  opacity: 0.25;
+  transition: opacity 0.2s ease-out;
+}
+.fragment.visible {
+  opacity: 1;
 }
   </style>
 </head>
