@@ -47,33 +47,52 @@ parses the Markdown into an AST, walks it slide-by-slide, and renders each slide
 HTML template with inlined CSS and JS. The output is one flat file: no external assets, no
 network requests, no build artifacts to manage.
 
-## Planned features
+## Features
 
 - **Markdown → HTML deck** — `---` splits slides; standard Markdown (headings, lists, code
-  blocks, images, tables, emphasis) renders as expected.
-- **Self-contained output** — CSS and navigation JS are inlined into the single output file.
+  blocks, images, tables, blockquotes, emphasis) renders as expected.
+- **Self-contained output** — CSS and navigation JS are inlined, and local images are embedded
+  as base64 data URIs, so the output is always a single portable file.
 - **Themes** — a small set of built-in themes (`default`, `dark`, `minimal`) selectable via
-  `--theme`, plus support for a custom CSS override.
-- **Keyboard + click navigation** — arrow keys, space, click-to-advance, and a slide counter.
+  `--theme`, plus support for a custom CSS override via `--css`.
+- **Keyboard + click navigation** — arrow keys, space, and click advance the deck; `f` toggles
+  fullscreen; an optional progress bar and slide counter show position.
 - **Speaker notes** — HTML comments (`<!-- note: ... -->`) become a notes panel toggled with `n`.
-- **Code syntax highlighting** — fenced code blocks get language-aware highlighting baked into
-  the output, no runtime dependency.
-- **PDF export path** — documented recipe (headless Chrome print) for turning a deck into a PDF.
+- **Code syntax highlighting** — fenced code blocks are highlighted at build time via
+  `highlight.js`, so the output ships static spans and CSS, not a highlighter runtime.
+- **Watch mode** — `--watch` rebuilds automatically whenever the source Markdown or `--css`
+  file changes.
+- **PDF export** — see [Exporting to PDF](#exporting-to-pdf) below.
+
+## Exporting to PDF
+
+Since a deck is one HTML file, printing it to PDF works with any headless Chrome/Chromium:
+
+```bash
+mdslides talk.md -o talk.html
+google-chrome --headless --disable-gpu --print-to-pdf=talk.pdf --no-pdf-header-footer \
+  --print-to-pdf-no-header file://$(pwd)/talk.html
+```
+
+Chrome's print dialog paginates the deck section by section, since each `.slide` fills the
+viewport; for the best result, add a print stylesheet override via `--css` that sets each
+`.slide` to `page-break-after: always` if the default pagination doesn't match slide boundaries.
 
 ## Stack
 
 - **TypeScript** on Node.js — a static binary-free CLI, published as an npm package.
-- **Markdown AST**: [`unified`](https://unifiedjs.com/)/`remark` for parsing, so slide-splitting
-  and rendering operate on a real AST instead of regex-punching Markdown.
+- **Parsing**: a hand-written, fence-aware line splitter finds slide boundaries (so a `---`
+  inside a code block never splits a slide), then [`marked`](https://marked.js.org/) renders
+  each slide's Markdown to HTML.
 - **Templating**: a minimal in-repo template renderer — no heavyweight frontend framework, since
   output is static HTML.
-- **Testing**: `vitest` for unit tests over the parser/renderer; CI runs lint + typecheck + tests
-  on every push.
+- **Testing**: `vitest` for unit tests over the parser/renderer/CLI; CI runs lint + typecheck +
+  tests on every push.
 
 ## Status
 
-Early scaffold — see [`docs/VISION.md`](docs/VISION.md) for the design and
-[`docs/BACKLOG.md`](docs/BACKLOG.md) for the build plan.
+Core feature set implemented — see [`docs/VISION.md`](docs/VISION.md) for the design and
+[`docs/BACKLOG.md`](docs/BACKLOG.md) for what's left.
 
 ## License
 
