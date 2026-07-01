@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -12,6 +12,24 @@ function makeDeckDir(markdown: string): string {
   const dir = mkdtempSync(join(tmpdir(), 'mdslides-cli-'));
   writeFileSync(join(dir, 'deck.md'), markdown, 'utf8');
   return dir;
+}
+
+function waitFor(predicate: () => boolean, timeoutMs = 8000): Promise<void> {
+  return new Promise((resolvePromise, reject) => {
+    const start = Date.now();
+    const check = (): void => {
+      if (predicate()) {
+        resolvePromise();
+        return;
+      }
+      if (Date.now() - start > timeoutMs) {
+        reject(new Error('timed out waiting for condition'));
+        return;
+      }
+      setTimeout(check, 25);
+    };
+    check();
+  });
 }
 
 describe.skipIf(!existsSync(CLI_PATH))('mdslides CLI (built)', () => {
@@ -57,4 +75,34 @@ describe.skipIf(!existsSync(CLI_PATH))('mdslides CLI (built)', () => {
       stderr: expect.stringContaining('Invalid --theme "neon"'),
     });
   });
+
+  it('rebuilds the output when --watch is set and the source changes', async () => {
+    const dir = makeDeckDir('# One');
+    const mdPath = join(dir, 'deck.md');
+    const outPath = join(dir, 'deck.html');
+
+    const child = spawn(process.execPath, [CLI_PATH, mdPath, '-o', outPath, '--watch']);
+    try {
+      await waitFor(() => existsSync(outPath) && readFileSync(outPath, 'utf8').includes('One'));
+
+      // fs.watch registration on a freshly spawned process can lag slightly behind
+      // the "watching" log, so retry the write a few times if the first is missed.
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        writeFileSync(mdPath, '# Two', 'utf8');
+        try {
+          await waitFor(() => readFileSync(outPath, 'utf8').includes('Two'), 1000);
+          break;
+        } catch {
+          if (attempt === 4) {
+            throw new Error('output was never rebuilt after the source changed');
+          }
+        }
+      }
+
+      const html = readFileSync(outPath, 'utf8');
+      expect(html).toContain('Two');
+    } finally {
+      child.kill();
+    }
+  }, 15000);
 });
