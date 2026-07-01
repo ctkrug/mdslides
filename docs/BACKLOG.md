@@ -27,7 +27,7 @@ backlog is what's left to reach the "v1 done" bar in [`VISION.md`](VISION.md).
 - [x] Add a fullscreen toggle bound to a keyboard shortcut.
 - [x] Document a PDF export recipe (headless Chrome print-to-PDF against the generated HTML) in
       the README.
-- [ ] Add an incremental-reveal syntax for list items (e.g. a slide-level flag that reveals
+- [x] Add an incremental-reveal syntax for list items (e.g. a slide-level flag that reveals
       bullets one keypress at a time) for presenters who build up a point gradually.
 
 ## Epic 4 — Quality & polish
