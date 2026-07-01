@@ -49,4 +49,12 @@ describe('renderDeck', () => {
 
     expect(html).toContain(`data:image/png;base64,${pngBytes.toString('base64')}`);
   });
+
+  it('highlights fenced code blocks using the fence language tag', () => {
+    const slides = parseSlides('```ts\nconst x: number = 1;\n```');
+    const html = renderDeck(slides, { theme: 'default', title: 'Deck' });
+
+    expect(html).toContain('class="hljs language-ts"');
+    expect(html).toContain('hljs-keyword');
+  });
 });
