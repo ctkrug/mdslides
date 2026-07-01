@@ -9,6 +9,17 @@ export const navigationScript = `
   var progressBar = document.querySelector('.progress-bar');
   var notesPanel = document.querySelector('.notes-panel');
   var current = 0;
+  var revealed = 0;
+
+  function fragmentsOf(slide) {
+    return Array.prototype.slice.call(slide.querySelectorAll('.fragment'));
+  }
+
+  function updateFragments() {
+    fragmentsOf(slides[current]).forEach(function (fragment, i) {
+      fragment.classList.toggle('visible', i < revealed);
+    });
+  }
 
   function render() {
     slides.forEach(function (slide, i) {
@@ -25,11 +36,34 @@ export const navigationScript = `
       var notes = slides[current].getAttribute('data-notes') || '';
       notesPanel.textContent = notes;
     }
+    updateFragments();
   }
 
-  function go(delta) {
-    current = Math.min(Math.max(current + delta, 0), slides.length - 1);
-    render();
+  function advance() {
+    var fragments = fragmentsOf(slides[current]);
+    if (revealed < fragments.length) {
+      revealed += 1;
+      updateFragments();
+      return;
+    }
+    if (current < slides.length - 1) {
+      current += 1;
+      revealed = 0;
+      render();
+    }
+  }
+
+  function retreat() {
+    if (revealed > 0) {
+      revealed -= 1;
+      updateFragments();
+      return;
+    }
+    if (current > 0) {
+      current -= 1;
+      revealed = fragmentsOf(slides[current]).length;
+      render();
+    }
   }
 
   function toggleFullscreen() {
@@ -42,9 +76,9 @@ export const navigationScript = `
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'ArrowRight' || event.key === ' ') {
-      go(1);
+      advance();
     } else if (event.key === 'ArrowLeft') {
-      go(-1);
+      retreat();
     } else if (event.key.toLowerCase() === 'n' && notesPanel) {
       notesPanel.classList.toggle('visible');
     } else if (event.key.toLowerCase() === 'f') {
@@ -56,7 +90,7 @@ export const navigationScript = `
     if (notesPanel && notesPanel.contains(event.target)) {
       return;
     }
-    go(1);
+    advance();
   });
 
   render();
