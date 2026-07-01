@@ -57,4 +57,12 @@ describe('renderDeck', () => {
     expect(html).toContain('class="hljs language-ts"');
     expect(html).toContain('hljs-keyword');
   });
+
+  it('embeds theme rules for tables and blockquotes', () => {
+    const slides = parseSlides('# One');
+    const html = renderDeck(slides, { theme: 'default', title: 'Deck' });
+
+    expect(html).toContain('.slide table {');
+    expect(html).toContain('.slide blockquote {');
+  });
 });
