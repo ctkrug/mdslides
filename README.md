@@ -28,6 +28,8 @@ Options:
   -t, --theme <name>   default | dark | minimal (default: "default")
   --css <path>         custom CSS file layered on top of the theme
   --watch              rebuild the output whenever the input (or --css) changes
+  --progress           show a progress bar reflecting position in the deck
+  --no-counter         hide the "N / total" slide counter
 ```
 
 See [`examples/demo.md`](examples/demo.md) for a sample deck you can build locally:
