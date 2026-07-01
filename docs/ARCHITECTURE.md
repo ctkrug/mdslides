@@ -55,9 +55,12 @@ point; `src/cli.ts` is a thin wrapper that adds file I/O, flag parsing, error me
   debounces bursts of change events into one callback.
 - **`src/errors.ts`** — `CliError` (a message-is-already-user-facing error) and
   `toCliFileError()`, which maps Node `ENOENT`/`EISDIR`/`EACCES` into plain-English messages.
-- **`src/cli.ts`** — Commander-based entry point (`bin/mdslides` → `dist/cli.js`). Validates
-  `--theme`, reads the input Markdown and optional `--css`, calls `buildDeck()`, writes the
-  output, and — if `--watch` is set — re-runs the build on every change via `watchFiles()`.
+- **`src/cli.ts`** — Commander-based entry point; `package.json#bin` maps the `mdslides` command
+  to the compiled `dist/cli.js`. Validates `--theme`, reads the input Markdown and optional
+  `--css`, calls `buildDeck()`, writes the output, and — if `--watch` is set — re-runs the build
+  on every change via `watchFiles()`. `buildDeck()` itself rejects input that parses to zero
+  slides (empty file, or only blank separators) rather than emitting a deck that would crash its
+  own navigation script in the browser.
 
 ## Testing
 
