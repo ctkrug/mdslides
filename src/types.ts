@@ -3,6 +3,8 @@ export interface Slide {
   markdown: string;
   /** Speaker notes extracted from `<!-- note: ... -->` comments, if any. */
   notes: string[];
+  /** Whether `<!-- incremental -->` marked this slide's list items to reveal one at a time. */
+  incremental: boolean;
 }
 
 export type ThemeName = 'default' | 'dark' | 'minimal';
