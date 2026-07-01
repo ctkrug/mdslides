@@ -6,7 +6,7 @@ backlog is what's left to reach the "v1 done" bar in [`VISION.md`](VISION.md).
 
 ## Epic 1 — Rendering fidelity
 
-- [ ] Embed local images referenced from Markdown (`![alt](./img.png)`) as base64 data URIs so
+- [x] Embed local images referenced from Markdown (`![alt](./img.png)`) as base64 data URIs so
       decks with images stay a single portable file.
 - [ ] Add language-aware syntax highlighting to fenced code blocks without adding a runtime JS
       dependency to the generated output (highlight at build time, ship only static spans/CSS).
