@@ -6,6 +6,7 @@ export const navigationScript = `
 (function () {
   var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
   var counter = document.querySelector('.slide-counter');
+  var progressBar = document.querySelector('.progress-bar');
   var notesPanel = document.querySelector('.notes-panel');
   var current = 0;
 
@@ -15,6 +16,10 @@ export const navigationScript = `
     });
     if (counter) {
       counter.textContent = (current + 1) + ' / ' + slides.length;
+    }
+    if (progressBar) {
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progressBar.style.width = pct + '%';
     }
     if (notesPanel) {
       var notes = slides[current].getAttribute('data-notes') || '';
