@@ -3,6 +3,7 @@ import type { BuildOptions, Slide } from './types.js';
 import { getTheme } from './themes/index.js';
 import { navigationScript } from './navigation.js';
 import { embedImage } from './images.js';
+import { highlightCode } from './highlight.js';
 
 function escapeHtml(value: string): string {
   return value
@@ -20,6 +21,11 @@ function createRenderer(baseDir: string): Marked {
         const src = embedImage(href, baseDir);
         const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
         return `<img src="${src}" alt="${escapeHtml(text)}"${titleAttr} />`;
+      },
+      code(code: string, infostring: string | undefined) {
+        const lang = infostring?.trim().split(/\s+/)[0] || undefined;
+        const { html, language } = highlightCode(code, lang);
+        return `<pre><code class="hljs language-${language}">${html}</code></pre>`;
       },
     },
   });
