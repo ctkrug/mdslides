@@ -5,6 +5,7 @@ import { Command } from 'commander';
 import { buildDeck } from './index.js';
 import type { ThemeName } from './types.js';
 import { CliError, toCliFileError } from './errors.js';
+import { watchFiles } from './watch.js';
 
 const THEME_NAMES: ThemeName[] = ['default', 'dark', 'minimal'];
 
@@ -32,7 +33,14 @@ async function readCustomCss(cssPath: string): Promise<string> {
   }
 }
 
-async function run(inputPath: string, opts: { output?: string; theme: string; css?: string }): Promise<void> {
+interface CliOptions {
+  output?: string;
+  theme: string;
+  css?: string;
+  watch?: boolean;
+}
+
+async function build(inputPath: string, opts: CliOptions): Promise<void> {
   if (!isThemeName(opts.theme)) {
     throw new CliError(`Invalid --theme "${opts.theme}". Choose one of: ${THEME_NAMES.join(', ')}`);
   }
@@ -51,6 +59,21 @@ async function run(inputPath: string, opts: { output?: string; theme: string; cs
   console.log(`Wrote ${outputPath}`);
 }
 
+async function run(inputPath: string, opts: CliOptions): Promise<void> {
+  await build(inputPath, opts);
+
+  if (opts.watch) {
+    const watchedPaths = [inputPath, ...(opts.css ? [opts.css] : [])];
+    console.log('Watching for changes... (Ctrl+C to stop)');
+    watchFiles(watchedPaths, () => {
+      build(inputPath, opts).catch((error: unknown) => {
+        console.error(error instanceof Error ? error.message : error);
+      });
+    });
+    await new Promise<void>(() => {});
+  }
+}
+
 const program = new Command();
 
 program
@@ -60,7 +83,8 @@ program
   .option('-o, --output <path>', 'output HTML file path')
   .option('-t, --theme <name>', `theme to use (${THEME_NAMES.join(', ')})`, 'default')
   .option('--css <path>', 'path to a custom CSS file to append to the theme')
-  .action((input: string, opts: { output?: string; theme: string; css?: string }) => {
+  .option('--watch', 'rebuild the output whenever the input Markdown (or --css) changes')
+  .action((input: string, opts: CliOptions) => {
     run(input, opts).catch((error: unknown) => {
       console.error(error instanceof Error ? error.message : error);
       process.exitCode = 1;
