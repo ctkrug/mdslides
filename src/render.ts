@@ -45,6 +45,13 @@ export function renderDeck(slides: Slide[], options: BuildOptions): string {
   const customCss = options.customCss ? `\n${options.customCss}\n` : '';
   const marked = createRenderer(options.baseDir ?? process.cwd());
   const body = slides.map((slide, index) => renderSlide(slide, index, marked)).join('\n');
+  const showCounter = options.showCounter ?? true;
+  const showProgress = options.showProgress ?? false;
+
+  const counterHtml = showCounter ? '  <div class="slide-counter"></div>\n' : '';
+  const progressHtml = showProgress
+    ? '  <div class="progress-track"><div class="progress-bar"></div></div>\n'
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -68,12 +75,25 @@ export function renderDeck(slides: Slide[], options: BuildOptions): string {
   white-space: pre-wrap;
 }
 .notes-panel.visible { display: block; }
+.progress-track {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(128, 128, 128, 0.25);
+}
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: currentColor;
+  transition: width 0.15s ease-out;
+}
   </style>
 </head>
 <body>
 ${body}
-  <div class="slide-counter"></div>
-  <div class="notes-panel"></div>
+${progressHtml}${counterHtml}  <div class="notes-panel"></div>
   <script>${navigationScript}</script>
 </body>
 </html>
