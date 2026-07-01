@@ -28,6 +28,17 @@ body {
   overflow-x: auto;
 }
 .slide code { font-family: "SFMono-Regular", Consolas, monospace; }
+.slide blockquote {
+  margin: 0.5em 0;
+  padding: 0.25em 1.25em;
+  border-left: 4px solid #c8c8cc;
+  color: #55565c;
+  font-style: italic;
+}
+.slide ul ul, .slide ol ol, .slide ul ol, .slide ol ul { margin: 0.2em 0; }
+.slide table { border-collapse: collapse; margin: 0.5em 0; }
+.slide th, .slide td { border: 1px solid #d5d5d8; padding: 0.4em 0.8em; text-align: left; }
+.slide th { background: #ececf0; font-weight: 600; }
 .hljs-comment, .hljs-quote { color: #8a8a8a; font-style: italic; }
 .hljs-keyword, .hljs-selector-tag, .hljs-literal { color: #c586c0; }
 .hljs-string, .hljs-attr { color: #ce9178; }
