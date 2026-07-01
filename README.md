@@ -58,6 +58,8 @@ network requests, no build artifacts to manage.
 - **Keyboard + click navigation** — arrow keys, space, and click advance the deck; `f` toggles
   fullscreen; an optional progress bar and slide counter show position.
 - **Speaker notes** — HTML comments (`<!-- note: ... -->`) become a notes panel toggled with `n`.
+- **Incremental reveal** — a slide starting with `<!-- incremental -->` reveals its list items
+  one at a time as you advance, instead of showing the whole list at once.
 - **Code syntax highlighting** — fenced code blocks are highlighted at build time via
   `highlight.js`, so the output ships static spans and CSS, not a highlighter runtime.
 - **Watch mode** — `--watch` rebuilds automatically whenever the source Markdown or `--css`
