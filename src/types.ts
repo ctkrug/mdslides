@@ -16,4 +16,8 @@ export interface BuildOptions {
   title: string;
   /** Directory used to resolve relative image paths, for embedding as data URIs. */
   baseDir?: string;
+  /** Shows a progress bar reflecting position in the deck. Defaults to false. */
+  showProgress?: boolean;
+  /** Shows the "N / total" slide counter. Defaults to true. */
+  showCounter?: boolean;
 }
