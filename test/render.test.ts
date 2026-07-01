@@ -65,4 +65,25 @@ describe('renderDeck', () => {
     expect(html).toContain('.slide table {');
     expect(html).toContain('.slide blockquote {');
   });
+
+  it('omits the progress bar by default and includes it when requested', () => {
+    const slides = parseSlides('# One');
+
+    const withoutProgress = renderDeck(slides, { theme: 'default', title: 'Deck' });
+    expect(withoutProgress).not.toContain('class="progress-track"');
+
+    const withProgress = renderDeck(slides, { theme: 'default', title: 'Deck', showProgress: true });
+    expect(withProgress).toContain('class="progress-track"');
+    expect(withProgress).toContain('class="progress-bar"');
+  });
+
+  it('shows the slide counter by default and hides it when disabled', () => {
+    const slides = parseSlides('# One');
+
+    const withCounter = renderDeck(slides, { theme: 'default', title: 'Deck' });
+    expect(withCounter).toContain('<div class="slide-counter">');
+
+    const withoutCounter = renderDeck(slides, { theme: 'default', title: 'Deck', showCounter: false });
+    expect(withoutCounter).not.toContain('<div class="slide-counter">');
+  });
 });
