@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CliError, toCliFileError } from '../src/errors.js';
+import { CliError, toCliFileError, toCliWriteError } from '../src/errors.js';
 
 function errnoError(code: string): NodeJS.ErrnoException {
   const error = new Error(code) as NodeJS.ErrnoException;
@@ -27,5 +27,28 @@ describe('toCliFileError', () => {
   it('falls back to the underlying message for unrecognized errors', () => {
     const result = toCliFileError(new Error('disk exploded'), 'talk.md', 'Markdown file');
     expect(result.message).toBe('Could not read Markdown file "talk.md": disk exploded');
+  });
+});
+
+describe('toCliWriteError', () => {
+  it('produces a clear message when the output directory does not exist', () => {
+    const result = toCliWriteError(errnoError('ENOENT'), 'out/deck.html');
+    expect(result).toBeInstanceOf(CliError);
+    expect(result.message).toBe('Cannot write output file "out/deck.html": containing directory does not exist');
+  });
+
+  it('produces a clear message when the output path is a directory', () => {
+    const result = toCliWriteError(errnoError('EISDIR'), 'deck.html');
+    expect(result.message).toBe('Cannot write output file "deck.html": it is a directory');
+  });
+
+  it('produces a clear message for a permission error', () => {
+    const result = toCliWriteError(errnoError('EACCES'), 'deck.html');
+    expect(result.message).toBe('Permission denied writing output file "deck.html"');
+  });
+
+  it('falls back to the underlying message for unrecognized errors', () => {
+    const result = toCliWriteError(new Error('disk full'), 'deck.html');
+    expect(result.message).toBe('Could not write output file "deck.html": disk full');
   });
 });

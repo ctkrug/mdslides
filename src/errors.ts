@@ -24,3 +24,21 @@ export function toCliFileError(error: unknown, path: string, kind: string): CliE
   }
   return new CliError(`Could not read ${kind} "${path}": ${error instanceof Error ? error.message : String(error)}`);
 }
+
+/** Rewraps a filesystem write failure into a clear, actionable CliError. */
+export function toCliWriteError(error: unknown, path: string): CliError {
+  if (isErrnoException(error)) {
+    if (error.code === 'ENOENT') {
+      return new CliError(`Cannot write output file "${path}": containing directory does not exist`);
+    }
+    if (error.code === 'EISDIR') {
+      return new CliError(`Cannot write output file "${path}": it is a directory`);
+    }
+    if (error.code === 'EACCES') {
+      return new CliError(`Permission denied writing output file "${path}"`);
+    }
+  }
+  return new CliError(
+    `Could not write output file "${path}": ${error instanceof Error ? error.message : String(error)}`,
+  );
+}

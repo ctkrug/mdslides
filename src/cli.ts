@@ -4,7 +4,7 @@ import { basename, dirname, extname, resolve } from 'node:path';
 import { Command } from 'commander';
 import { buildDeck } from './index.js';
 import type { ThemeName } from './types.js';
-import { CliError, toCliFileError } from './errors.js';
+import { CliError, toCliFileError, toCliWriteError } from './errors.js';
 import { watchFiles } from './watch.js';
 
 const THEME_NAMES: ThemeName[] = ['default', 'dark', 'minimal'];
@@ -59,7 +59,11 @@ async function build(inputPath: string, opts: CliOptions): Promise<void> {
   });
 
   const outputPath = opts.output ?? `${basename(inputPath, extname(inputPath))}.html`;
-  await writeFile(outputPath, html, 'utf8');
+  try {
+    await writeFile(outputPath, html, 'utf8');
+  } catch (error) {
+    throw toCliWriteError(error, outputPath);
+  }
   console.log(`Wrote ${outputPath}`);
 }
 
