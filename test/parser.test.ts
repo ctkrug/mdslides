@@ -27,4 +27,15 @@ describe('parseSlides', () => {
     expect(slides).toHaveLength(1);
     expect(slides[0].markdown).toBe('# One');
   });
+
+  it('marks a slide incremental from an <!-- incremental --> comment', () => {
+    const slides = parseSlides('# One\n\n<!-- incremental -->\n\n- a\n- b');
+    expect(slides[0].incremental).toBe(true);
+    expect(slides[0].markdown).not.toContain('incremental');
+  });
+
+  it('defaults incremental to false when no marker is present', () => {
+    const slides = parseSlides('# One\n\n- a\n- b');
+    expect(slides[0].incremental).toBe(false);
+  });
 });
