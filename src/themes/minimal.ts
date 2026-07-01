@@ -28,6 +28,12 @@ body {
   overflow-x: auto;
 }
 .slide code { font-family: Menlo, Consolas, monospace; }
+.hljs-comment, .hljs-quote { color: #6a737d; font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-literal { color: #a626a4; }
+.hljs-string, .hljs-attr { color: #50a14f; }
+.hljs-number, .hljs-built_in { color: #986801; }
+.hljs-title, .hljs-title.function_ { color: #4078f2; }
+.hljs-type, .hljs-class .hljs-title { color: #0184bc; }
 .slide-counter {
   position: fixed;
   bottom: 1rem;
