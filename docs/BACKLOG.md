@@ -23,7 +23,7 @@ backlog is what's left to reach the "v1 done" bar in [`VISION.md`](VISION.md).
 
 ## Epic 3 — Presentation features
 
-- [ ] Add an optional progress bar and a toggle for showing/hiding the slide counter.
+- [x] Add an optional progress bar and a toggle for showing/hiding the slide counter.
 - [ ] Add a fullscreen toggle bound to a keyboard shortcut.
 - [ ] Document a PDF export recipe (headless Chrome print-to-PDF against the generated HTML) in
       the README.
