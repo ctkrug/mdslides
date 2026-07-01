@@ -16,7 +16,7 @@ backlog is what's left to reach the "v1 done" bar in [`VISION.md`](VISION.md).
 ## Epic 2 — CLI & developer experience
 
 - [ ] Add a `--watch` flag that rebuilds the output file whenever the source Markdown changes.
-- [ ] Add clear, actionable error messages and non-zero exit codes for common failures (missing
+- [x] Add clear, actionable error messages and non-zero exit codes for common failures (missing
       input file, invalid `--theme` value, unreadable `--css` path).
 - [ ] Publish `mdslides` to npm under the `ctkrug` account and verify `npx mdslides <file>` works
       from a completely clean environment.
@@ -32,7 +32,7 @@ backlog is what's left to reach the "v1 done" bar in [`VISION.md`](VISION.md).
 
 ## Epic 4 — Quality & polish
 
-- [ ] Add CLI-level integration tests that run the built `dist/cli.js` against fixture Markdown
+- [x] Add CLI-level integration tests that run the built `dist/cli.js` against fixture Markdown
       files in a temp directory and assert on the emitted HTML.
 - [ ] Add a `CONTRIBUTING.md` covering local setup, the test/lint commands, and the commit style.
 - [ ] Add a short usage GIF or screenshot to the README showing a themed deck in a browser.
