@@ -34,7 +34,7 @@ backlog is what's left to reach the "v1 done" bar in [`VISION.md`](VISION.md).
 
 - [x] Add CLI-level integration tests that run the built `dist/cli.js` against fixture Markdown
       files in a temp directory and assert on the emitted HTML.
-- [ ] Add a `CONTRIBUTING.md` covering local setup, the test/lint commands, and the commit style.
+- [x] Add a `CONTRIBUTING.md` covering local setup, the test/lint commands, and the commit style.
 - [ ] Add a short usage GIF or screenshot to the README showing a themed deck in a browser.
 - [ ] Tag and publish a `v1.0.0` release once the above epics are complete, with a changelog
       summarizing the feature set.
