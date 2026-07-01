@@ -38,6 +38,8 @@ interface CliOptions {
   theme: string;
   css?: string;
   watch?: boolean;
+  progress?: boolean;
+  counter: boolean;
 }
 
 async function build(inputPath: string, opts: CliOptions): Promise<void> {
@@ -52,6 +54,8 @@ async function build(inputPath: string, opts: CliOptions): Promise<void> {
     customCss,
     title: deriveTitle(inputPath),
     baseDir: dirname(resolve(inputPath)),
+    showProgress: opts.progress,
+    showCounter: opts.counter,
   });
 
   const outputPath = opts.output ?? `${basename(inputPath, extname(inputPath))}.html`;
@@ -84,6 +88,8 @@ program
   .option('-t, --theme <name>', `theme to use (${THEME_NAMES.join(', ')})`, 'default')
   .option('--css <path>', 'path to a custom CSS file to append to the theme')
   .option('--watch', 'rebuild the output whenever the input Markdown (or --css) changes')
+  .option('--progress', 'show a progress bar reflecting position in the deck')
+  .option('--no-counter', 'hide the "N / total" slide counter')
   .action((input: string, opts: CliOptions) => {
     run(input, opts).catch((error: unknown) => {
       console.error(error instanceof Error ? error.message : error);
