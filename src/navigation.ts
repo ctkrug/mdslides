@@ -32,6 +32,14 @@ export const navigationScript = `
     render();
   }
 
+  function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    }
+  }
+
   document.addEventListener('keydown', function (event) {
     if (event.key === 'ArrowRight' || event.key === ' ') {
       go(1);
@@ -39,6 +47,8 @@ export const navigationScript = `
       go(-1);
     } else if (event.key.toLowerCase() === 'n' && notesPanel) {
       notesPanel.classList.toggle('visible');
+    } else if (event.key.toLowerCase() === 'f') {
+      toggleFullscreen();
     }
   });
 
