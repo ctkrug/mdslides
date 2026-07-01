@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFile, writeFile } from 'node:fs/promises';
-import { basename, extname } from 'node:path';
+import { basename, dirname, extname, resolve } from 'node:path';
 import { Command } from 'commander';
 import { buildDeck } from './index.js';
 import type { ThemeName } from './types.js';
@@ -26,6 +26,7 @@ async function run(inputPath: string, opts: { output?: string; theme: string; cs
     theme: opts.theme,
     customCss,
     title: deriveTitle(inputPath),
+    baseDir: dirname(resolve(inputPath)),
   });
 
   const outputPath = opts.output ?? `${basename(inputPath, extname(inputPath))}.html`;

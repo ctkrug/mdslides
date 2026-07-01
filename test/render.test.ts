@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { parseSlides } from '../src/parser.js';
 import { renderDeck } from '../src/render.js';
 
@@ -34,5 +37,16 @@ describe('renderDeck', () => {
     const html = renderDeck(slides, { theme: 'default', title: 'Deck' });
 
     expect(html).toContain('data-notes="use &quot;quotes&quot; &amp; &lt;tags&gt;"');
+  });
+
+  it('embeds a locally referenced image as a base64 data URI', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'mdslides-'));
+    const pngBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
+    writeFileSync(join(dir, 'logo.png'), pngBytes);
+
+    const slides = parseSlides('![a logo](logo.png)');
+    const html = renderDeck(slides, { theme: 'default', title: 'Deck', baseDir: dir });
+
+    expect(html).toContain(`data:image/png;base64,${pngBytes.toString('base64')}`);
   });
 });

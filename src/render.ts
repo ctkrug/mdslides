@@ -1,7 +1,8 @@
-import { marked } from 'marked';
+import { Marked } from 'marked';
 import type { BuildOptions, Slide } from './types.js';
 import { getTheme } from './themes/index.js';
 import { navigationScript } from './navigation.js';
+import { embedImage } from './images.js';
 
 function escapeHtml(value: string): string {
   return value
@@ -11,7 +12,21 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function renderSlide(slide: Slide, index: number): string {
+function createRenderer(baseDir: string): Marked {
+  const instance = new Marked();
+  instance.use({
+    renderer: {
+      image(href: string, title: string | null, text: string) {
+        const src = embedImage(href, baseDir);
+        const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
+        return `<img src="${src}" alt="${escapeHtml(text)}"${titleAttr} />`;
+      },
+    },
+  });
+  return instance;
+}
+
+function renderSlide(slide: Slide, index: number, marked: Marked): string {
   const html = marked.parse(slide.markdown, { async: false }) as string;
   const notesAttr = escapeHtml(slide.notes.join('\n'));
   const activeClass = index === 0 ? ' active' : '';
@@ -22,7 +37,8 @@ function renderSlide(slide: Slide, index: number): string {
 export function renderDeck(slides: Slide[], options: BuildOptions): string {
   const theme = getTheme(options.theme);
   const customCss = options.customCss ? `\n${options.customCss}\n` : '';
-  const body = slides.map(renderSlide).join('\n');
+  const marked = createRenderer(options.baseDir ?? process.cwd());
+  const body = slides.map((slide, index) => renderSlide(slide, index, marked)).join('\n');
 
   return `<!DOCTYPE html>
 <html lang="en">
