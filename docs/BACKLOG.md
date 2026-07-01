@@ -8,7 +8,7 @@ backlog is what's left to reach the "v1 done" bar in [`VISION.md`](VISION.md).
 
 - [x] Embed local images referenced from Markdown (`![alt](./img.png)`) as base64 data URIs so
       decks with images stay a single portable file.
-- [ ] Add language-aware syntax highlighting to fenced code blocks without adding a runtime JS
+- [x] Add language-aware syntax highlighting to fenced code blocks without adding a runtime JS
       dependency to the generated output (highlight at build time, ship only static spans/CSS).
 - [ ] Extend theme CSS to cover tables, blockquotes, and nested lists, which currently fall back
       to browser defaults.
