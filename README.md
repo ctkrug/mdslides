@@ -18,6 +18,24 @@ host. No dependencies at presentation time.
 npx mdslides talk.md -o talk.html
 ```
 
+## Usage
+
+```
+mdslides <input.md> [options]
+
+Options:
+  -o, --output <path>  output HTML file path (default: <input>.html)
+  -t, --theme <name>   default | dark | minimal (default: "default")
+  --css <path>         custom CSS file layered on top of the theme
+```
+
+See [`examples/demo.md`](examples/demo.md) for a sample deck you can build locally:
+
+```bash
+npm run build
+node dist/cli.js examples/demo.md -o demo.html --theme dark
+```
+
 ## How it works
 
 Slides are separated by a horizontal rule (`---`) on its own line, the same convention used by
