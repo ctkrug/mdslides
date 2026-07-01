@@ -83,6 +83,27 @@ describe.skipIf(!existsSync(CLI_PATH))('mdslides CLI (built)', () => {
     });
   });
 
+  it('exits non-zero with a clear message when the output directory does not exist', async () => {
+    const dir = makeDeckDir('# One');
+    const outPath = join(dir, 'missing-dir', 'deck.html');
+
+    await expect(execFileAsync(process.execPath, [CLI_PATH, join(dir, 'deck.md'), '-o', outPath])).rejects.toMatchObject(
+      {
+        code: 1,
+        stderr: expect.stringContaining(`Cannot write output file "${outPath}": containing directory does not exist`),
+      },
+    );
+  });
+
+  it('exits non-zero with a clear message for empty input', async () => {
+    const dir = makeDeckDir('');
+
+    await expect(execFileAsync(process.execPath, [CLI_PATH, join(dir, 'deck.md')])).rejects.toMatchObject({
+      code: 1,
+      stderr: expect.stringContaining('No slides found'),
+    });
+  });
+
   it('exits non-zero with a clear message for an invalid theme', async () => {
     const dir = makeDeckDir('# One');
 
