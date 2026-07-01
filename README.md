@@ -27,6 +27,7 @@ Options:
   -o, --output <path>  output HTML file path (default: <input>.html)
   -t, --theme <name>   default | dark | minimal (default: "default")
   --css <path>         custom CSS file layered on top of the theme
+  --watch              rebuild the output whenever the input (or --css) changes
 ```
 
 See [`examples/demo.md`](examples/demo.md) for a sample deck you can build locally:
