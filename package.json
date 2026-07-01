@@ -1,0 +1,36 @@
+{
+  "name": "mdslides",
+  "version": "0.1.0",
+  "description": "Turn a Markdown file into a self-contained, themeable HTML slide deck",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "mdslides": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "lint": "eslint src test"
+  },
+  "keywords": [
+    "markdown",
+    "slides",
+    "presentation",
+    "cli",
+    "html"
+  ],
+  "author": "Charlie Krug",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ctkrug/mdslides.git"
+  }
+}
