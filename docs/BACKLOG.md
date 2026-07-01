@@ -15,7 +15,7 @@ backlog is what's left to reach the "v1 done" bar in [`VISION.md`](VISION.md).
 
 ## Epic 2 — CLI & developer experience
 
-- [ ] Add a `--watch` flag that rebuilds the output file whenever the source Markdown changes.
+- [x] Add a `--watch` flag that rebuilds the output file whenever the source Markdown changes.
 - [x] Add clear, actionable error messages and non-zero exit codes for common failures (missing
       input file, invalid `--theme` value, unreadable `--css` path).
 - [ ] Publish `mdslides` to npm under the `ctkrug` account and verify `npx mdslides <file>` works
