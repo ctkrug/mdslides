@@ -4,6 +4,7 @@ import { basename, dirname, extname, resolve } from 'node:path';
 import { Command } from 'commander';
 import { buildDeck } from './index.js';
 import type { ThemeName } from './types.js';
+import { CliError, toCliFileError } from './errors.js';
 
 const THEME_NAMES: ThemeName[] = ['default', 'dark', 'minimal'];
 
@@ -15,13 +16,29 @@ function deriveTitle(inputPath: string): string {
   return basename(inputPath, extname(inputPath));
 }
 
+async function readInput(inputPath: string): Promise<string> {
+  try {
+    return await readFile(inputPath, 'utf8');
+  } catch (error) {
+    throw toCliFileError(error, inputPath, 'Markdown file');
+  }
+}
+
+async function readCustomCss(cssPath: string): Promise<string> {
+  try {
+    return await readFile(cssPath, 'utf8');
+  } catch (error) {
+    throw toCliFileError(error, cssPath, 'CSS file');
+  }
+}
+
 async function run(inputPath: string, opts: { output?: string; theme: string; css?: string }): Promise<void> {
   if (!isThemeName(opts.theme)) {
-    throw new Error(`Invalid --theme "${opts.theme}". Choose one of: ${THEME_NAMES.join(', ')}`);
+    throw new CliError(`Invalid --theme "${opts.theme}". Choose one of: ${THEME_NAMES.join(', ')}`);
   }
 
-  const markdown = await readFile(inputPath, 'utf8');
-  const customCss = opts.css ? await readFile(opts.css, 'utf8') : undefined;
+  const markdown = await readInput(inputPath);
+  const customCss = opts.css ? await readCustomCss(opts.css) : undefined;
   const html = buildDeck(markdown, {
     theme: opts.theme,
     customCss,
