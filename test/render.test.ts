@@ -86,4 +86,15 @@ describe('renderDeck', () => {
     const withoutCounter = renderDeck(slides, { theme: 'default', title: 'Deck', showCounter: false });
     expect(withoutCounter).not.toContain('<div class="slide-counter">');
   });
+
+  it('marks list items as fragments only on incremental slides', () => {
+    const incremental = parseSlides('<!-- incremental -->\n\n- a\n- b');
+    const normal = parseSlides('- a\n- b');
+
+    const incrementalHtml = renderDeck(incremental, { theme: 'default', title: 'Deck' });
+    const normalHtml = renderDeck(normal, { theme: 'default', title: 'Deck' });
+
+    expect(incrementalHtml).toContain('<li class="fragment">');
+    expect(normalHtml).not.toContain('class="fragment"');
+  });
 });
