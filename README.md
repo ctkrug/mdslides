@@ -1,5 +1,8 @@
 # mdslides
 
+[![CI](https://github.com/ctkrug/mdslides/actions/workflows/ci.yml/badge.svg)](https://github.com/ctkrug/mdslides/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Turn a Markdown file into a self-contained, themeable HTML slide deck — from the command line,
 with no build step, no cloud service, and no lock-in.
 
