@@ -55,6 +55,24 @@ describe.skipIf(!existsSync(CLI_PATH))('mdslides CLI (built)', () => {
     expect(html).toContain('#10131a');
   });
 
+  it('supports --progress and --no-counter', async () => {
+    const dir = makeDeckDir('# One');
+    const outPath = join(dir, 'deck.html');
+
+    await execFileAsync(process.execPath, [
+      CLI_PATH,
+      join(dir, 'deck.md'),
+      '-o',
+      outPath,
+      '--progress',
+      '--no-counter',
+    ]);
+
+    const html = readFileSync(outPath, 'utf8');
+    expect(html).toContain('class="progress-track"');
+    expect(html).not.toContain('<div class="slide-counter">');
+  });
+
   it('exits non-zero with a clear message for a missing input file', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'mdslides-cli-'));
     const missing = join(dir, 'missing.md');
