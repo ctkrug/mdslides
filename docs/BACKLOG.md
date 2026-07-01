@@ -10,7 +10,7 @@ backlog is what's left to reach the "v1 done" bar in [`VISION.md`](VISION.md).
       decks with images stay a single portable file.
 - [x] Add language-aware syntax highlighting to fenced code blocks without adding a runtime JS
       dependency to the generated output (highlight at build time, ship only static spans/CSS).
-- [ ] Extend theme CSS to cover tables, blockquotes, and nested lists, which currently fall back
+- [x] Extend theme CSS to cover tables, blockquotes, and nested lists, which currently fall back
       to browser defaults.
 
 ## Epic 2 — CLI & developer experience
