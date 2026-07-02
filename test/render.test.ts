@@ -25,6 +25,7 @@ describe('renderDeck', () => {
 
     expect(html).toContain('#10131a');
     expect(html).toContain('.slide { color: red; }');
+    expect(html.indexOf('#10131a')).toBeLessThan(html.indexOf('.slide { color: red; }'));
   });
 
   it('rejects an unknown theme name', () => {
