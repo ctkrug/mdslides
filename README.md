@@ -30,6 +30,7 @@ Options:
   --watch              rebuild the output whenever the input (or --css) changes
   --progress           show a progress bar reflecting position in the deck
   --no-counter         hide the "N / total" slide counter
+  -V, --version        print the installed mdslides version
 ```
 
 See [`examples/demo.md`](examples/demo.md) for a sample deck you can build locally:

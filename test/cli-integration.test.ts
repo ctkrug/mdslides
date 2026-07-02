@@ -33,6 +33,11 @@ function waitFor(predicate: () => boolean, timeoutMs = 8000): Promise<void> {
 }
 
 describe.skipIf(!existsSync(CLI_PATH))('mdslides CLI (built)', () => {
+  it('reports its version with --version', async () => {
+    const { stdout } = await execFileAsync(process.execPath, [CLI_PATH, '--version']);
+    expect(stdout.trim()).toMatch(/^\d+\.\d+\.\d+/);
+  });
+
   it('writes a self-contained HTML deck for valid input', async () => {
     const dir = makeDeckDir('# One\n\n---\n\n# Two');
     const outPath = join(dir, 'deck.html');

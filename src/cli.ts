@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 import { readFile, writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { basename, dirname, extname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Command } from 'commander';
 import { buildDeck } from './index.js';
 import type { ThemeName } from './types.js';
 import { CliError, toCliFileError, toCliWriteError } from './errors.js';
 import { watchFiles } from './watch.js';
+
+const packageJsonPath = resolve(dirname(fileURLToPath(import.meta.url)), '../package.json');
+const { version } = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as { version: string };
 
 const THEME_NAMES: ThemeName[] = ['default', 'dark', 'minimal'];
 
@@ -87,6 +92,7 @@ const program = new Command();
 program
   .name('mdslides')
   .description('Turn a Markdown file into a self-contained HTML slide deck')
+  .version(version)
   .argument('<input>', 'path to the source Markdown file')
   .option('-o, --output <path>', 'output HTML file path')
   .option('-t, --theme <name>', `theme to use (${THEME_NAMES.join(', ')})`, 'default')
