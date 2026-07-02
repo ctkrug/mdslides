@@ -22,6 +22,12 @@ describe('parseSlides', () => {
     expect(slides[0].markdown).not.toContain('note:');
   });
 
+  it('collects multiple note comments on the same slide in order', () => {
+    const slides = parseSlides('# One\n\n<!-- note: first -->\n\nBody\n\n<!-- note: second -->');
+    expect(slides[0].notes).toEqual(['first', 'second']);
+    expect(slides[0].markdown).toBe('# One\n\n\n\nBody');
+  });
+
   it('drops empty slides produced by leading/trailing separators', () => {
     const slides = parseSlides('---\n\n# One\n\n---');
     expect(slides).toHaveLength(1);
