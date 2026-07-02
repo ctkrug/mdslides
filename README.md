@@ -1,5 +1,7 @@
 # Deckhand
 
+**▶ Live demo — [apps.charliekrug.com/deckhand](https://apps.charliekrug.com/deckhand/)**
+
 [![CI](https://github.com/ctkrug/mdslides/actions/workflows/ci.yml/badge.svg)](https://github.com/ctkrug/mdslides/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
