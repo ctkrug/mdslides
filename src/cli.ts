@@ -18,8 +18,16 @@ function isThemeName(value: string): value is ThemeName {
   return (THEME_NAMES as string[]).includes(value);
 }
 
-function deriveTitle(inputPath: string): string {
+function stripExtension(inputPath: string): string {
   return basename(inputPath, extname(inputPath));
+}
+
+function deriveTitle(inputPath: string): string {
+  return stripExtension(inputPath);
+}
+
+function defaultOutputPath(inputPath: string): string {
+  return join(dirname(inputPath), `${stripExtension(inputPath)}.html`);
 }
 
 async function readInput(inputPath: string): Promise<string> {
@@ -63,7 +71,7 @@ async function build(inputPath: string, opts: CliOptions): Promise<void> {
     showCounter: opts.counter,
   });
 
-  const outputPath = opts.output ?? join(dirname(inputPath), `${basename(inputPath, extname(inputPath))}.html`);
+  const outputPath = opts.output ?? defaultOutputPath(inputPath);
   try {
     await writeFile(outputPath, html, 'utf8');
   } catch (error) {
