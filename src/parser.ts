@@ -15,15 +15,21 @@ export function parseSlides(source: string): Slide[] {
   const chunks: string[] = [];
   let current: string[] = [];
   let inFence = false;
-  let fenceMarker = '';
+  let fenceChar = '';
+  let fenceLength = 0;
 
   for (const line of lines) {
     const fenceMatch = line.match(FENCE);
     if (fenceMatch) {
+      const marker = fenceMatch[1];
       if (!inFence) {
         inFence = true;
-        fenceMarker = fenceMatch[1][0];
-      } else if (line.trim().startsWith(fenceMarker)) {
+        fenceChar = marker[0];
+        fenceLength = marker.length;
+      } else if (marker[0] === fenceChar && marker.length >= fenceLength) {
+        // CommonMark only closes a fence on a marker of the same character
+        // that is at least as long as the opener, so a shorter nested
+        // fence (e.g. a ``` shown inside a ```` block) doesn't close it early.
         inFence = false;
       }
       current.push(line);
