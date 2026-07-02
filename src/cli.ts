@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFile, writeFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
-import { basename, dirname, extname, resolve } from 'node:path';
+import { basename, dirname, extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Command } from 'commander';
 import { buildDeck } from './index.js';
@@ -63,7 +63,7 @@ async function build(inputPath: string, opts: CliOptions): Promise<void> {
     showCounter: opts.counter,
   });
 
-  const outputPath = opts.output ?? `${basename(inputPath, extname(inputPath))}.html`;
+  const outputPath = opts.output ?? join(dirname(inputPath), `${basename(inputPath, extname(inputPath))}.html`);
   try {
     await writeFile(outputPath, html, 'utf8');
   } catch (error) {
