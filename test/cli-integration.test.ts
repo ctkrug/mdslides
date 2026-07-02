@@ -137,6 +137,32 @@ describe.skipIf(!existsSync(CLI_PATH))('mdslides CLI (built)', () => {
     );
   });
 
+  it('exits non-zero with a clear message when the output path is a directory', async () => {
+    const dir = makeDeckDir('# One');
+    const outDir = join(dir, 'deck-output');
+    mkdirSync(outDir);
+
+    await expect(
+      execFileAsync(process.execPath, [CLI_PATH, join(dir, 'deck.md'), '-o', outDir]),
+    ).rejects.toMatchObject({
+      code: 1,
+      stderr: expect.stringContaining(`Cannot write output file "${outDir}": it is a directory`),
+    });
+  });
+
+  it('exits non-zero with a clear message when --css points at a directory', async () => {
+    const dir = makeDeckDir('# One');
+    const cssDir = join(dir, 'styles');
+    mkdirSync(cssDir);
+
+    await expect(
+      execFileAsync(process.execPath, [CLI_PATH, join(dir, 'deck.md'), '--css', cssDir]),
+    ).rejects.toMatchObject({
+      code: 1,
+      stderr: expect.stringContaining(`Expected CSS file "${cssDir}" to be a file, but it is a directory`),
+    });
+  });
+
   it('exits non-zero with a clear message for empty input', async () => {
     const dir = makeDeckDir('');
 
