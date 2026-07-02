@@ -173,4 +173,51 @@ describe.skipIf(!existsSync(CLI_PATH))('mdslides CLI (built)', () => {
       child.kill();
     }
   }, 15000);
+
+  it('logs and survives a transient empty file under --watch, then recovers', async () => {
+    const dir = makeDeckDir('# One');
+    const mdPath = join(dir, 'deck.md');
+    const outPath = join(dir, 'deck.html');
+
+    const child = spawn(process.execPath, [CLI_PATH, mdPath, '-o', outPath, '--watch']);
+    let stderr = '';
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
+
+    try {
+      await waitFor(() => existsSync(outPath) && readFileSync(outPath, 'utf8').includes('One'));
+
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        writeFileSync(mdPath, '', 'utf8');
+        try {
+          await waitFor(() => stderr.includes('No slides found'), 1000);
+          break;
+        } catch {
+          if (attempt === 4) {
+            throw new Error('empty-file rebuild never logged the expected error');
+          }
+        }
+      }
+
+      expect(child.exitCode).toBeNull();
+
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        writeFileSync(mdPath, '# Recovered', 'utf8');
+        try {
+          await waitFor(() => readFileSync(outPath, 'utf8').includes('Recovered'), 1000);
+          break;
+        } catch {
+          if (attempt === 4) {
+            throw new Error('output was never rebuilt after content was restored');
+          }
+        }
+      }
+
+      const html = readFileSync(outPath, 'utf8');
+      expect(html).toContain('Recovered');
+    } finally {
+      child.kill();
+    }
+  }, 15000);
 });
