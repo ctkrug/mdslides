@@ -18,4 +18,18 @@ describe('highlightCode', () => {
     const result = highlightCode('some plain text', 'not-a-real-language');
     expect(result.html.length).toBeGreaterThan(0);
   });
+
+  it('escapes HTML-significant characters in the code so markup cannot leak', () => {
+    const result = highlightCode('<script>alert(1)</script>');
+    expect(result.html).not.toContain('<script>');
+    expect(result.html).toContain('&lt;');
+    expect(result.html).toContain('&gt;');
+  });
+
+  it('returns plaintext for an empty code block instead of throwing', () => {
+    expect(() => highlightCode('')).not.toThrow();
+    const result = highlightCode('');
+    expect(result.html).toBe('');
+    expect(result.language).toBe('plaintext');
+  });
 });
