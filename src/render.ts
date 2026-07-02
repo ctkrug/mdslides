@@ -41,7 +41,17 @@ function createRenderer(baseDir: string): SlideRenderer {
   return {
     render(markdown: string, isIncremental: boolean): string {
       incremental = isIncremental;
-      return instance.parse(markdown, { async: false }) as string;
+      try {
+        return instance.parse(markdown, { async: false }) as string;
+      } catch (error) {
+        // marked appends a "please report this to marked" footer to any error
+        // thrown by a custom renderer, as if it were marked's own bug — strip
+        // it so a legitimate error (e.g. a missing image file) isn't misattributed.
+        if (error instanceof Error) {
+          error.message = error.message.replace(/\n?Please report this to https:\/\/github\.com\/markedjs\/marked\.$/, '');
+        }
+        throw error;
+      }
     },
   };
 }
