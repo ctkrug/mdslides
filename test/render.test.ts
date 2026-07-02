@@ -50,6 +50,19 @@ describe('renderDeck', () => {
     expect(html).toContain(`data:image/png;base64,${pngBytes.toString('base64')}`);
   });
 
+  it('surfaces a missing image error without marked\'s misleading bug-report footer', () => {
+    const slides = parseSlides('![x](missing.png)');
+
+    expect(() => renderDeck(slides, { theme: 'default', title: 'Deck', baseDir: '/tmp' })).toThrow(
+      /Could not read image "missing\.png"/,
+    );
+    try {
+      renderDeck(slides, { theme: 'default', title: 'Deck', baseDir: '/tmp' });
+    } catch (error) {
+      expect((error as Error).message).not.toContain('markedjs');
+    }
+  });
+
   it('highlights fenced code blocks using the fence language tag', () => {
     const slides = parseSlides('```ts\nconst x: number = 1;\n```');
     const html = renderDeck(slides, { theme: 'default', title: 'Deck' });
