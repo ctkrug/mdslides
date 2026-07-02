@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
-import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -86,6 +86,19 @@ describe.skipIf(!existsSync(CLI_PATH))('mdslides CLI (built)', () => {
       code: 1,
       stderr: expect.stringContaining(`Cannot find Markdown file "${missing}"`),
     });
+  });
+
+  it('embeds a locally referenced image relative to the input file, not the cwd', async () => {
+    const dir = makeDeckDir('![logo](img/logo.png)');
+    mkdirSync(join(dir, 'img'));
+    const pngBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
+    writeFileSync(join(dir, 'img', 'logo.png'), pngBytes);
+    const outPath = join(dir, 'deck.html');
+
+    await execFileAsync(process.execPath, [CLI_PATH, join(dir, 'deck.md'), '-o', outPath], { cwd: tmpdir() });
+
+    const html = readFileSync(outPath, 'utf8');
+    expect(html).toContain(`data:image/png;base64,${pngBytes.toString('base64')}`);
   });
 
   it('appends a custom CSS file on top of the theme', async () => {
