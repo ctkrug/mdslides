@@ -38,6 +38,15 @@ describe.skipIf(!existsSync(CLI_PATH))('mdslides CLI (built)', () => {
     expect(stdout.trim()).toMatch(/^\d+\.\d+\.\d+/);
   });
 
+  it('defaults the output path next to the input file, not the cwd', async () => {
+    const dir = makeDeckDir('# One');
+
+    await execFileAsync(process.execPath, [CLI_PATH, join(dir, 'deck.md')], { cwd: tmpdir() });
+
+    const html = readFileSync(join(dir, 'deck.html'), 'utf8');
+    expect(html).toContain('<section class="slide active"');
+  });
+
   it('writes a self-contained HTML deck for valid input', async () => {
     const dir = makeDeckDir('# One\n\n---\n\n# Two');
     const outPath = join(dir, 'deck.html');
