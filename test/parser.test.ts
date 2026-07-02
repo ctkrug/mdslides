@@ -52,6 +52,13 @@ describe('parseSlides', () => {
     expect(slides[0].markdown).toContain('<!-- incremental -->');
   });
 
+  it('recognizes a leading incremental marker even when preceded by a note comment', () => {
+    const slides = parseSlides('<!-- note: abc -->\n<!-- incremental -->\n\n- a\n- b');
+    expect(slides[0].incremental).toBe(true);
+    expect(slides[0].notes).toEqual(['abc']);
+    expect(slides[0].markdown).toBe('- a\n- b');
+  });
+
   it('leaves a literal mention of the marker syntax in body text untouched', () => {
     const slides = parseSlides(
       '<!-- incremental -->\n\n- mark a slide `<!-- incremental -->`\n- another point',
