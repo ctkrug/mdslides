@@ -28,14 +28,29 @@ describe('parseSlides', () => {
     expect(slides[0].markdown).toBe('# One');
   });
 
-  it('marks a slide incremental from an <!-- incremental --> comment', () => {
-    const slides = parseSlides('# One\n\n<!-- incremental -->\n\n- a\n- b');
+  it('marks a slide incremental from a leading <!-- incremental --> comment', () => {
+    const slides = parseSlides('<!-- incremental -->\n\n# One\n\n- a\n- b');
     expect(slides[0].incremental).toBe(true);
     expect(slides[0].markdown).not.toContain('incremental');
+    expect(slides[0].markdown).toBe('# One\n\n- a\n- b');
   });
 
   it('defaults incremental to false when no marker is present', () => {
     const slides = parseSlides('# One\n\n- a\n- b');
     expect(slides[0].incremental).toBe(false);
+  });
+
+  it('does not treat a mid-slide mention of the marker as the flag', () => {
+    const slides = parseSlides('# One\n\n<!-- incremental -->\n\n- a\n- b');
+    expect(slides[0].incremental).toBe(false);
+    expect(slides[0].markdown).toContain('<!-- incremental -->');
+  });
+
+  it('leaves a literal mention of the marker syntax in body text untouched', () => {
+    const slides = parseSlides(
+      '<!-- incremental -->\n\n- mark a slide `<!-- incremental -->`\n- another point',
+    );
+    expect(slides[0].incremental).toBe(true);
+    expect(slides[0].markdown).toBe('- mark a slide `<!-- incremental -->`\n- another point');
   });
 });

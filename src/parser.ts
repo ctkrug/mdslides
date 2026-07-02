@@ -3,8 +3,7 @@ import type { Slide } from './types.js';
 const SLIDE_BREAK = /^-{3,}\s*$/;
 const FENCE = /^(`{3,}|~{3,})/;
 const NOTE_COMMENT = /<!--\s*note:\s*([\s\S]*?)-->/gi;
-const INCREMENTAL_COMMENT = /<!--\s*incremental\s*-->/gi;
-const HAS_INCREMENTAL_COMMENT = /<!--\s*incremental\s*-->/i;
+const LEADING_INCREMENTAL_COMMENT = /^<!--\s*incremental\s*-->\s*/i;
 
 /**
  * Splits a Markdown document into slides on horizontal rules (`---` on their
@@ -54,8 +53,12 @@ function toSlide(markdown: string): Slide {
     return '';
   });
 
-  const incremental = HAS_INCREMENTAL_COMMENT.test(withoutNotes);
-  const body = withoutNotes.replace(INCREMENTAL_COMMENT, '');
+  // Only a marker leading the slide is treated as the incremental flag, so
+  // mentioning the literal `<!-- incremental -->` syntax elsewhere in a
+  // slide's body (e.g. as documentation text) is left untouched.
+  const trimmed = withoutNotes.trimStart();
+  const leadingMatch = trimmed.match(LEADING_INCREMENTAL_COMMENT);
+  const body = leadingMatch ? trimmed.slice(leadingMatch[0].length) : withoutNotes;
 
-  return { markdown: body.trim(), notes, incremental };
+  return { markdown: body.trim(), notes, incremental: leadingMatch !== null };
 }
