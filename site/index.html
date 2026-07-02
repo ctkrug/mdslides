@@ -310,6 +310,9 @@
     }
     footer .meta { margin-top: 1.6rem; color: var(--muted); font-size: 0.9rem; }
     footer .meta a { color: var(--muted); }
+    footer .more { margin-top: 0.5rem; color: var(--muted); font-size: 0.85rem; }
+    footer .more a { color: var(--muted); }
+    footer .more a:hover { color: var(--accent); }
 
     @media (max-width: 860px) {
       .hero { grid-template-columns: 1fr; gap: 2.5rem; padding: 2rem 0 3rem; }
@@ -432,6 +435,9 @@ export function greet(<span class="c">...</span>)
       <p class="meta">
         Deckhand runs as the <code>mdslides</code> CLI.
         Open source under the <a href="https://github.com/ctkrug/mdslides/blob/main/LICENSE">MIT license</a>.
+      </p>
+      <p class="more">
+        More by Charlie Krug → <a href="https://apps.charliekrug.com">apps.charliekrug.com</a>
       </p>
     </div>
   </footer>
