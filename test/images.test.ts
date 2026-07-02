@@ -31,4 +31,17 @@ describe('embedImage', () => {
   it('leaves unrecognized extensions untouched', () => {
     expect(embedImage('script.js', '/tmp')).toBe('script.js');
   });
+
+  it('resolves the MIME type case-insensitively for uppercase extensions', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'mdslides-'));
+    const jpgBytes = Buffer.from([0xff, 0xd8, 0xff]);
+    writeFileSync(join(dir, 'photo.JPG'), jpgBytes);
+
+    const result = embedImage('photo.JPG', dir);
+    expect(result).toBe(`data:image/jpeg;base64,${jpgBytes.toString('base64')}`);
+  });
+
+  it('leaves a protocol-relative URL untouched', () => {
+    expect(embedImage('//example.com/a.png', '/tmp')).toBe('//example.com/a.png');
+  });
 });
