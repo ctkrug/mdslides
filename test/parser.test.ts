@@ -15,6 +15,13 @@ describe('parseSlides', () => {
     expect(slides[0].markdown).toContain('---');
   });
 
+  it('does not close a fence early on a shorter nested marker of the same character', () => {
+    const slides = parseSlides('# One\n\n````\ncode\n```\n---\nstill inside\n````\n\nMore');
+    expect(slides).toHaveLength(1);
+    expect(slides[0].markdown).toContain('---');
+    expect(slides[0].markdown).toContain('More');
+  });
+
   it('extracts speaker notes from HTML comments', () => {
     const slides = parseSlides('# One\n\n<!-- note: say hi -->\n\nBody text');
     expect(slides).toHaveLength(1);
