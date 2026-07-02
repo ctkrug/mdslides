@@ -222,6 +222,36 @@ describe.skipIf(!existsSync(CLI_PATH))('mdslides CLI (built)', () => {
     }
   }, 15000);
 
+  it('rebuilds the output when --watch is set and the --css file changes', async () => {
+    const dir = makeDeckDir('# One');
+    const mdPath = join(dir, 'deck.md');
+    const cssPath = join(dir, 'custom.css');
+    const outPath = join(dir, 'deck.html');
+    writeFileSync(cssPath, '.slide { color: blue; }', 'utf8');
+
+    const child = spawn(process.execPath, [CLI_PATH, mdPath, '-o', outPath, '--css', cssPath, '--watch']);
+    try {
+      await waitFor(() => existsSync(outPath) && readFileSync(outPath, 'utf8').includes('color: blue'));
+
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        writeFileSync(cssPath, '.slide { color: hotpink; }', 'utf8');
+        try {
+          await waitFor(() => readFileSync(outPath, 'utf8').includes('color: hotpink'), 1000);
+          break;
+        } catch {
+          if (attempt === 4) {
+            throw new Error('output was never rebuilt after the css file changed');
+          }
+        }
+      }
+
+      const html = readFileSync(outPath, 'utf8');
+      expect(html).toContain('color: hotpink');
+    } finally {
+      child.kill();
+    }
+  }, 15000);
+
   it('logs and survives a transient empty file under --watch, then recovers', async () => {
     const dir = makeDeckDir('# One');
     const mdPath = join(dir, 'deck.md');
