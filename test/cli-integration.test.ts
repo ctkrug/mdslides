@@ -83,6 +83,30 @@ describe.skipIf(!existsSync(CLI_PATH))('mdslides CLI (built)', () => {
     });
   });
 
+  it('appends a custom CSS file on top of the theme', async () => {
+    const dir = makeDeckDir('# One');
+    const cssPath = join(dir, 'custom.css');
+    writeFileSync(cssPath, '.slide { color: hotpink; }', 'utf8');
+    const outPath = join(dir, 'deck.html');
+
+    await execFileAsync(process.execPath, [CLI_PATH, join(dir, 'deck.md'), '-o', outPath, '--css', cssPath]);
+
+    const html = readFileSync(outPath, 'utf8');
+    expect(html).toContain('.slide { color: hotpink; }');
+  });
+
+  it('exits non-zero with a clear message for a missing --css file', async () => {
+    const dir = makeDeckDir('# One');
+    const missingCss = join(dir, 'missing.css');
+
+    await expect(
+      execFileAsync(process.execPath, [CLI_PATH, join(dir, 'deck.md'), '--css', missingCss]),
+    ).rejects.toMatchObject({
+      code: 1,
+      stderr: expect.stringContaining(`Cannot find CSS file "${missingCss}"`),
+    });
+  });
+
   it('exits non-zero with a clear message when the output directory does not exist', async () => {
     const dir = makeDeckDir('# One');
     const outPath = join(dir, 'missing-dir', 'deck.html');
