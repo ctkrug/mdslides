@@ -8,6 +8,10 @@ dist/
 # test / coverage
 coverage/
 
+# generated deck output from following the README/CONTRIBUTING examples locally
+/demo.html
+/deck.html
+
 # logs
 npm-debug.log*
 *.log
