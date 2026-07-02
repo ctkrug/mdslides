@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deckhand: Markdown in, one self-contained HTML deck out</title>
+  <meta name="description" content="Deckhand turns a Markdown file into a single self-contained HTML slide deck from the command line. No dev server, no SPA build, no internet at presentation time." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f4efe4;
+      --surface: #fbf8f1;
+      --panel: #eae1d0;
+      --ink: #211d17;
+      --muted: #6d6559;
+      --accent: #c8492f;
+      --support: #24756e;
+      --line: #d9cfba;
+      --shadow: 0 1px 2px rgba(33, 29, 23, 0.06), 0 14px 34px rgba(33, 29, 23, 0.10);
+      --serif: "Fraunces", Georgia, "Times New Roman", serif;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --mono: "SFMono-Regular", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image:
+        radial-gradient(circle at 18% -10%, rgba(200, 73, 47, 0.06), transparent 45%),
+        radial-gradient(circle at 100% 0%, rgba(36, 117, 110, 0.07), transparent 40%);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); }
+
+    .wrap { width: min(1120px, 100% - 3rem); margin-inline: auto; }
+
+    :focus-visible {
+      outline: 2px solid var(--support);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    /* ---- header ---- */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.4rem 0;
+    }
+    .brand { display: flex; align-items: center; gap: 0.6rem; }
+    .brand svg { display: block; }
+    .brand span {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 1.4rem;
+      letter-spacing: -0.01em;
+    }
+    .nav-link {
+      font-weight: 500;
+      font-size: 0.95rem;
+      text-decoration: none;
+      color: var(--ink);
+      padding: 0.4rem 0.2rem;
+      border-bottom: 2px solid transparent;
+      transition: border-color 160ms ease-out, color 160ms ease-out;
+    }
+    .nav-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ---- hero ---- */
+    .hero {
+      display: grid;
+      grid-template-columns: 1.02fr 0.98fr;
+      gap: 3.5rem;
+      align-items: center;
+      padding: 3.5rem 0 4.5rem;
+    }
+    .eyebrow {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--support);
+      margin: 0 0 1rem;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(2.4rem, 5.2vw, 3.5rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin: 0 0 1.1rem;
+    }
+    h1 .mark { color: var(--accent); }
+    .subhead {
+      font-size: 1.16rem;
+      color: var(--muted);
+      max-width: 34ch;
+      margin: 0 0 1.9rem;
+    }
+    .cmd {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      font-family: var(--mono);
+      font-size: 0.98rem;
+      background: var(--ink);
+      color: #f4efe4;
+      padding: 0.85rem 1.1rem;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.9rem;
+      overflow-x: auto;
+    }
+    .cmd .prompt { color: #c8a58f; user-select: none; }
+    .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.9rem 1.4rem; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      padding: 0.8rem 1.4rem;
+      border-radius: 8px;
+      transition: transform 160ms ease-out, box-shadow 160ms ease-out, background 160ms ease-out;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+    .btn-primary:hover { transform: translateY(-2px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-text {
+      color: var(--ink);
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 2px;
+      transition: border-color 160ms ease-out;
+    }
+    .btn-text:hover { border-color: var(--accent); }
+
+    /* ---- showcase: source -> rendered slide on a deck stack ---- */
+    .showcase { display: flex; flex-direction: column; align-items: stretch; gap: 0.4rem; }
+    .source {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1rem 1.2rem;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.75;
+      color: var(--ink);
+      overflow-x: auto;
+    }
+    .source .label {
+      display: block;
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .source .h { color: var(--accent); font-weight: 600; }
+    .source .b { color: var(--support); }
+    .source .c { color: var(--muted); }
+    .arrow {
+      align-self: center;
+      color: var(--muted);
+      font-size: 1.3rem;
+      line-height: 1;
+      margin: 0.1rem 0;
+    }
+
+    .deck { position: relative; margin-top: 0.4rem; }
+    .deck::before, .deck::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      background: #171a22;
+      box-shadow: var(--shadow);
+    }
+    .deck::before { transform: translate(10px, 10px) rotate(1.1deg); }
+    .deck::after { transform: translate(5px, 5px) rotate(0.5deg); }
+    .slide {
+      position: relative;
+      border-radius: 12px;
+      background: #10131a;
+      color: #e8eaf0;
+      padding: 1.6rem 1.7rem 1.5rem;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: transform 160ms ease-out;
+    }
+    .deck:hover .slide { transform: translateY(-3px); }
+    .slide .bar { position: absolute; top: 0; left: 0; height: 4px; width: 42%; background: #e8eaf0; }
+    .slide .bar-track { position: absolute; top: 0; left: 0; height: 4px; width: 100%; background: rgba(255,255,255,0.14); }
+    .slide h3 {
+      font-family: var(--sans);
+      font-weight: 700;
+      color: #fff;
+      font-size: 1.35rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .slide pre {
+      background: #05070c;
+      border-radius: 6px;
+      padding: 0.9rem 1rem;
+      margin: 0 0 0.9rem;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+    .k { color: #ff7edb; }
+    .fn { color: #7db4ff; }
+    .ty { color: #56d4c7; }
+    .st { color: #ffd479; }
+    .tx { color: #d7dbe3; }
+    .slide .cap { font-size: 0.9rem; color: #e8eaf0; margin: 0; }
+    .slide .counter { position: absolute; right: 1rem; bottom: 0.8rem; font-size: 0.78rem; color: #666f80; }
+
+    /* ---- features ---- */
+    .features { padding: 1rem 0 4rem; }
+    .features h2 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 1.9rem;
+      letter-spacing: -0.01em;
+      margin: 0 0 2rem;
+    }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6rem; }
+    .feature {
+      border-top: 2px solid var(--ink);
+      padding-top: 1rem;
+    }
+    .feature .num {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--accent);
+    }
+    .feature h3 {
+      font-size: 1.12rem;
+      font-weight: 600;
+      margin: 0.4rem 0 0.5rem;
+    }
+    .feature p { margin: 0; color: var(--muted); font-size: 0.98rem; }
+
+    /* ---- usage ---- */
+    .usage { padding: 1rem 0 4rem; }
+    .usage h2 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 1.9rem;
+      letter-spacing: -0.01em;
+      margin: 0 0 1.4rem;
+    }
+    .terminal {
+      background: var(--ink);
+      color: #e8e2d6;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .terminal .tbar {
+      display: flex;
+      gap: 0.45rem;
+      padding: 0.75rem 1rem;
+      background: #2c271f;
+    }
+    .terminal .tbar i { width: 11px; height: 11px; border-radius: 50%; background: #55504a; display: block; }
+    .terminal pre {
+      margin: 0;
+      padding: 1.2rem 1.4rem;
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      line-height: 1.85;
+      color: #ece6da;
+      overflow-x: auto;
+    }
+    .terminal .p { color: #c8a58f; }
+    .terminal .cc { color: #8f8778; }
+    .terminal .o { color: #93b5b0; }
+
+    /* ---- footer / cta ---- */
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 3rem 0 3.5rem;
+      text-align: center;
+    }
+    footer h2 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 1.7rem;
+      margin: 0 0 1.4rem;
+    }
+    footer .meta { margin-top: 1.6rem; color: var(--muted); font-size: 0.9rem; }
+    footer .meta a { color: var(--muted); }
+
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; gap: 2.5rem; padding: 2rem 0 3rem; }
+      .subhead { max-width: none; }
+      .grid { grid-template-columns: 1fr; gap: 1.2rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true">
+          <rect x="4" y="9.5" width="19" height="13" rx="2.5" fill="#c8492f" opacity="0.35" />
+          <rect x="6.5" y="6.5" width="19" height="13" rx="2.5" fill="#c8492f" opacity="0.6" />
+          <rect x="9" y="3.5" width="19" height="13" rx="2.5" fill="#c8492f" />
+        </svg>
+        <span>Deckhand</span>
+      </div>
+      <a class="nav-link" href="https://github.com/ctkrug/mdslides">GitHub</a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Markdown to HTML slides</p>
+          <h1>Markdown in, <span class="mark">one HTML deck</span> out.</h1>
+          <p class="subhead">
+            A command-line tool for developers and technical speakers who write talks in Markdown
+            and want a single file they can present from anywhere.
+          </p>
+          <div class="cmd"><span class="prompt">$</span> npx mdslides talk.md -o talk.html</div>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="https://github.com/ctkrug/mdslides">
+              View on GitHub
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn-text" href="#usage">See the commands</a>
+          </div>
+        </div>
+
+        <div class="showcase" aria-label="A Markdown source turning into a rendered slide">
+          <div class="source">
+            <span class="label">talk.md</span>
+<span class="h">## Code, highlighted at build time</span>
+
+```ts
+export function greet(<span class="c">...</span>)
+```
+<span class="c">&lt;!-- note: pause here --&gt;</span>
+          </div>
+          <div class="arrow" aria-hidden="true">&darr;</div>
+          <div class="deck">
+            <div class="slide">
+              <div class="bar-track"></div>
+              <div class="bar"></div>
+              <h3>Code, highlighted at build time</h3>
+              <pre><span class="k">export function </span><span class="fn">greet</span><span class="tx">(name: </span><span class="ty">string</span><span class="tx">): </span><span class="ty">string</span><span class="tx"> {</span>
+  <span class="k">return</span> <span class="st">`Hello, ${name}!`</span><span class="tx">;</span>
+<span class="tx">}</span></pre>
+              <p class="cap">Fenced blocks ship as static colored spans, no runtime.</p>
+              <span class="counter">3 / 6</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="features">
+        <h2>Built for one job, done cleanly.</h2>
+        <div class="grid">
+          <div class="feature">
+            <span class="num">01</span>
+            <h3>One file, nothing attached</h3>
+            <p>Theme CSS, navigation JS, and local images are inlined as data URIs. The output is a
+              single <code>.html</code> file with no sidecar folder to ship.</p>
+          </div>
+          <div class="feature">
+            <span class="num">02</span>
+            <h3>Your talk stays in git</h3>
+            <p>Plain Markdown in, diffable line by line. A <code>---</code> splits slides,
+              <code>&lt;!-- note: --&gt;</code> holds speaker notes, and code blocks are highlighted
+              for you.</p>
+          </div>
+          <div class="feature">
+            <span class="num">03</span>
+            <h3>Present anywhere, offline</h3>
+            <p>Open it in any browser with no server and no network. Arrow keys and click navigate;
+              print to PDF with headless Chrome when you need a handout.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="usage" id="usage">
+        <h2>From file to deck in one command</h2>
+        <div class="terminal">
+          <div class="tbar" aria-hidden="true"><i></i><i></i><i></i></div>
+          <pre><span class="p">$</span> npx mdslides talk.md -o talk.html --theme dark
+<span class="o">Wrote talk.html</span>
+
+<span class="cc"># pick a theme, add a progress bar, rebuild on save</span>
+<span class="p">$</span> mdslides talk.md --theme minimal --progress --watch
+
+<span class="cc"># themes: default | dark | minimal   ·   --css layers your own</span>
+<span class="cc"># --no-counter hides the slide count   ·   -V prints the version</span></pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <div class="wrap">
+      <h2>Write the talk. Ship one file.</h2>
+      <a class="btn btn-primary" href="https://github.com/ctkrug/mdslides">
+        View on GitHub
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <p class="meta">
+        Deckhand runs as the <code>mdslides</code> CLI.
+        Open source under the <a href="https://github.com/ctkrug/mdslides/blob/main/LICENSE">MIT license</a>.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
